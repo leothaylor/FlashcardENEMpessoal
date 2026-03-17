@@ -15,7 +15,7 @@
 
   <style>
     /* ==========================================================
-       TOKENS & VARIÁVEIS BASE (MANTIDOS)
+       TOKENS & VARIÁVEIS BASE
        ========================================================== */
     :root {
       --bg-body: #f1f3f5;
@@ -42,7 +42,7 @@
     ::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 4px; }
 
     /* ==========================================================
-       ESTRUTURA DE TELAS (MANTIDA)
+       ESTRUTURA DE TELAS
        ========================================================== */
     .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
     .screen.active { display: flex; }
@@ -59,7 +59,7 @@
     .btn-block { display: flex; width: 100%; margin-bottom: 12px; }
 
     /* ==========================================================
-       HOME (MANTIDA)
+       HOME
        ========================================================== */
     .home-container {
       text-align: center; width: min(600px, 100%); margin: auto; background: var(--bg-card);
@@ -73,7 +73,7 @@
     .stat-mini span { font-size: 11px; font-weight: 700; color: var(--txt-muted); text-transform: uppercase; }
 
     /* ==========================================================
-       SESSÃO DE FLASHCARDS (ADAPTADA PARA MÚLTIPLA ESCOLHA)
+       SESSÃO DE FLASHCARDS (MÚLTIPLA ESCOLHA)
        ========================================================== */
     .study-layout { width: min(800px, 100%); flex: 1; display: flex; flex-direction: column; }
     .session-header {
@@ -87,7 +87,6 @@
     .perf-fill-good { height: 100%; background: var(--good); transition: width 0.3s ease; }
     .perf-fill-bad { height: 100%; background: var(--bad); transition: width 0.3s ease; }
 
-    /* CARD ESTÁTICO & ALTERNATIVAS */
     .card-static {
       background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
       box-shadow: var(--shadow); padding: 24px; margin-bottom: 16px; width: 100%;
@@ -119,7 +118,7 @@
     .action-area.visible { opacity: 1; pointer-events: auto; }
 
     /* ==========================================================
-       CONQUISTAS (MANTIDA)
+       CONQUISTAS
        ========================================================== */
     .medals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px; margin-top: 20px; }
     .medal-box {
@@ -131,7 +130,7 @@
     .medal-title { font-size: 11px; font-weight: 800; color: var(--txt-main); }
 
     /* ==========================================================
-       RELATÓRIO DE SESSÃO (ADAPTADO)
+       RELATÓRIO DE SESSÃO
        ========================================================== */
     .report-card { background: var(--bg-card); padding: 24px; border-radius: var(--radius); border: 1px solid var(--border); width: min(800px, 100%); margin: auto; }
     .report-header { text-align: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
@@ -195,8 +194,7 @@
       <div class="card-static" id="flashcardNode">
         <div class="card-meta" id="cardTema">TEMA</div>
         <div class="card-content" id="cardPergunta">Pergunta aqui?</div>
-        <div class="alts-container" id="altsContainer">
-          </div>
+        <div class="alts-container" id="altsContainer"></div>
       </div>
 
       <div class="action-area" id="actionArea">
@@ -239,7 +237,7 @@
 
   <script>
     /* ==========================================================
-       1. ESTADO GLOBAL E CONSTANTES (MANTIDO)
+       1. ESTADO GLOBAL E CONSTANTES
        ========================================================== */
     const LS_KEY = "FLASHCARDS_STATE_V1";
     const INTERVALS = [1, 3, 5, 7, 14, 21];
@@ -253,7 +251,7 @@
     };
 
     /* ==========================================================
-       2. ESTADO DA SESSÃO ATUAL (ADAPTADO)
+       2. ESTADO DA SESSÃO ATUAL
        ========================================================== */
     let session = {
       queue: [],
@@ -261,11 +259,11 @@
       hits: 0,
       misses: 0,
       log: [], 
-      answered: false // Controle para bloquear cliques duplos nas alternativas
+      answered: false
     };
 
     /* ==========================================================
-       3. INICIALIZAÇÃO & UTILITÁRIOS (MANTIDOS)
+       3. INICIALIZAÇÃO & UTILITÁRIOS
        ========================================================== */
     function loadState() {
       const saved = localStorage.getItem(LS_KEY);
@@ -309,7 +307,7 @@
     }
 
     /* ==========================================================
-       4. LÓGICA DE SESSÃO E RENDERIZAÇÃO (ADAPTADA)
+       4. LÓGICA DE SESSÃO E RENDERIZAÇÃO
        ========================================================== */
     function startSession(mode) {
       loadState();
@@ -349,7 +347,6 @@
       document.getElementById('cardTema').textContent = card.tema;
       document.getElementById('cardPergunta').textContent = card.pergunta;
       
-      // Injeta Alternativas A-E
       const altsContainer = document.getElementById('altsContainer');
       altsContainer.innerHTML = '';
       
@@ -372,7 +369,6 @@
       const card = session.queue[session.currentIndex];
       const isHit = (selectedIndex === card.correta);
 
-      // Feedback Visual (Trava botões, marca verde/vermelho)
       const alts = document.querySelectorAll('.alt-btn');
       alts.forEach((btn, i) => {
         btn.disabled = true;
@@ -383,10 +379,7 @@
         }
       });
 
-      // Exibe botão Próximo
       document.getElementById('actionArea').classList.add('visible');
-
-      // Delega registro mantendo a função original instacta
       registerAnswer(isHit, selectedIndex);
     }
 
@@ -396,15 +389,13 @@
     }
 
     /* ==========================================================
-       5. MOTOR DE REVISÃO ESPAÇADA (LÓGICA INTACTA)
+       5. MOTOR DE REVISÃO ESPAÇADA
        ========================================================== */
-    // ALTERAÇÃO MÍNIMA: A função agora aceita selectedIndex para o log, e não chama renderCurrentCard diretamente
     function registerAnswer(isHit, selectedIndex) {
       const card = session.queue[session.currentIndex];
       const hoje = getTodayStr();
 
       if (isHit) session.hits++; else session.misses++;
-      // Log armazena escolha para o relatório final
       session.log.push({ q: card, hit: isHit, escolhida: selectedIndex });
 
       if (!state.historico[card.id]) {
@@ -428,7 +419,6 @@
 
       hist.proximaRevisao = addDaysStr(hoje, INTERVALS[hist.intervalo]);
       saveState();
-
       updatePerfBar();
     }
 
@@ -446,7 +436,7 @@
     }
 
     /* ==========================================================
-       6. RELATÓRIOS (ADAPTADO) E EXPORTAÇÃO
+       6. RELATÓRIOS E EXPORTAÇÃO (AJUSTE CIRÚRGICO REALIZADO)
        ========================================================== */
     function finishSession() {
       const total = session.hits + session.misses;
@@ -469,11 +459,16 @@
       session.log.forEach(item => {
         const div = document.createElement('div');
         div.className = `r-item ${item.hit ? 'r-hit' : 'r-miss'}`;
+        
+        // Extrai os textos correspondentes usando os índices
+        const txtEscolhida = item.q.alternativas[item.escolhida];
+        const txtCorreta = item.q.alternativas[item.q.correta];
+
         div.innerHTML = `
           <div class="r-item-q">Pergunta: ${item.q.pergunta}</div>
           <div class="r-item-a">
-            Sua resposta: <b>${letters[item.escolhida]}</b><br>
-            Gabarito: <b>${letters[item.q.correta]}</b><br><br>
+            Sua resposta: <b>${letters[item.escolhida]}</b> - ${txtEscolhida}<br>
+            Gabarito: <b>${letters[item.q.correta]}</b> - ${txtCorreta}<br><br>
             Resultado: <b>${item.hit ? 'Acertou ✅' : 'Errou ❌'}</b>
           </div>
         `;
@@ -495,7 +490,7 @@
     }
 
     /* ==========================================================
-       7. MEDALHAS E CONQUISTAS (MANTIDO)
+       7. MEDALHAS E CONQUISTAS
        ========================================================== */
     const MEDALS = [
       { id: 'm1', title: '50 Acertos', icon: '🥉', req: (s) => s.acertosTotal >= 50 },
@@ -524,7 +519,7 @@
     }
 
     /* ==========================================================
-       8. IMPORTAÇÃO / EXPORTAÇÃO JSON (MANTIDO)
+       8. IMPORTAÇÃO / EXPORTAÇÃO JSON
        ========================================================== */
     function exportData() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
@@ -554,7 +549,7 @@
     }
 
     /* ==========================================================
-       9. CONTROLES DE TECLADO (ADAPTADO)
+       9. CONTROLES DE TECLADO
        ========================================================== */
     window.addEventListener('keydown', (ev) => {
       if (!document.getElementById('screenStudy').classList.contains('active')) return;
@@ -562,13 +557,11 @@
       const key = ev.key.toLowerCase();
       const keyMap = { 'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4 };
       
-      // Atalhos para as alternativas
       if (keyMap[key] !== undefined && !session.answered) {
         ev.preventDefault();
         selectAlternative(keyMap[key]);
       }
       
-      // Atalho para avançar
       if ((key === ' ' || ev.code === 'Space' || key === 'enter') && session.answered) {
         ev.preventDefault();
         advanceCard();
